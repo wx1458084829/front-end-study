@@ -22,37 +22,30 @@ const THREAD_COUNT = navigator.hardwareConcurrency || 4; // 线程数
 const result = [];
 let finishCount = 0;
 export async function cutFile(file) {
-   return new Promise((resolve, reject) => {
-    const chunkCount = Math.ceil(file.size / CHUNK_SIZE); // 计算切片个数
-    const threadChunkCount = Math.ceil(chunkCount / THREAD_COUNT); // 计算每个线程的切片个数
+    return new Promise((resolve, reject) => {
+        const chunkCount = Math.ceil(file.size / CHUNK_SIZE); // 计算切片个数
+        const threadChunkCount = Math.ceil(chunkCount / THREAD_COUNT); // 计算每个线程的切片个数
+        for (let i = 0; i < THREAD_COUNT; i++) {
+            const myWorker = new Worker('./js/worker.js', { type: 'module' }); // 创建线程,tyoe:module表示使用ES6模块
+            const start = i * CHUNK_SIZE;
+            const end = Math.min(start + threadChunkCount, chunkCount);
+            myWorker.postMessage({
+                file,
+                start,
+                end,
+                CHUNK_SIZE
+            });
+            myWorker.onmessage = (e) => {
+                myWorker.terminate(); // 关闭线程
+                result[i] = e.data; // 保存切片,必须使用数组，因为线程是异步的
+                finishCount++;
+                console.log(finishCount);
 
-
-    
-    for (let i = 0; i < THREAD_COUNT; i++) {
-        
-        const myWorker = new Worker('./js/worker.js',{ type: 'module' }); // 创建线程,tyoe:module表示使用ES6模块
-        const start = i * CHUNK_SIZE;
-        const end = Math.min( start + threadChunkCount,chunkCount);
-
-        myWorker.postMessage({
-            file,
-            start,
-            end,
-            CHUNK_SIZE
-        });
-
-        myWorker.onmessage = (e) => {
-            myWorker.terminate(); // 关闭线程
-            result[i] = e.data; // 保存切片,必须使用数组，因为线程是异步的
-            finishCount++;
-            console.log(finishCount);
-            
-            if(finishCount === THREAD_COUNT){
-
-                finishCount = 0;
-                resolve(result.flat()); // 将二维数组转换为一维数组
+                if (finishCount === THREAD_COUNT) {
+                    finishCount = 0;
+                    resolve(result.flat()); // 将二维数组转换为一维数组
+                }
             }
         }
-    }
-   })
+    })
 }
