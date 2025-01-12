@@ -1,9 +1,7 @@
 import { createChunk } from "./createChunk.js";
 
-
-self.onmessage = async function(e){
+self.onmessage = async function (e) {
     console.log(e.data);
-    
     const {
         file,
         start,
@@ -13,7 +11,7 @@ self.onmessage = async function(e){
 
     const result = [];
     for (let i = start; i < end; i++) {
-        const prom =  createChunk(file, i, CHUNK_SIZE);
+        const prom = createChunk(file, i, CHUNK_SIZE);
         result.push(prom);
     }
     const chunks = await Promise.all(result);

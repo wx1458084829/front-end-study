@@ -1,3 +1,10 @@
+/**
+ * 创建分片
+ * @param {*} file 
+ * @param {*} index 
+ * @param {*} chunkSize 
+ * @returns 
+ */
 export function createChunk (file,index, chunkSize){
     return new Promise((resolve, reject) => {
     const start = index * chunkSize;
