@@ -22,6 +22,6 @@ export function createChunk (file,index, chunkSize){
             blob
         })
     };
-    filerReader.readAsArrayBuffer(blob);
+    filerReader.readAsArrayBuffer(blob); // 读取文件
     })
 }
