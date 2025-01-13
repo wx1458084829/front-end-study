@@ -15,7 +15,7 @@ export function createChunk (file,index, chunkSize){
     filerReader.onload = (e) => {
         spark.append(e.target.result);
         resolve({
-          start,
+          start, //开始
             end,
             index,
             hash:spark.end(), // 计算hash,cpu密集型操作
